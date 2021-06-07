@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" fx:id="pane" prefHeight="530.0" prefWidth="464.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superskidder.gui.Controller">
+   <children>
+      <Label fx:id="title" layoutX="119.0" layoutY="14.0" prefHeight="33.0" prefWidth="227.0" text="SuperSkidder - IRC" textAlignment="CENTER" textOverrun="CLIP">
+         <font>
+            <Font size="22.0" />
+         </font>
+         <textFill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop color="RED" />
+                  <Stop color="#f000ff" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </textFill>
+      </Label>
+      <Label layoutX="7.0" layoutY="503.0" prefHeight="22.0" prefWidth="177.0" text="Made by SuperSkidder" textAlignment="CENTER" textFill="#4a4a4a" textOverrun="CLIP">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Label>
+      <JFXTextArea fx:id="log" editable="false" labelFloat="true" layoutX="20.0" layoutY="70.0" prefHeight="295.0" prefWidth="425.0" promptText="Log:" wrapText="true">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXTextArea>
+      <JFXButton fx:id="launch" layoutX="32.0" layoutY="436.0" onAction="#launchirc" prefHeight="40.0" prefWidth="399.0" ripplerFill="#656565" style="-fx-background-color: #f1f2f6;" text="Launch IRC" />
+      <JFXTextField fx:id="port" labelFloat="true" layoutX="53.0" layoutY="398.0" prefHeight="23.0" prefWidth="117.0" promptText="Port:" text="3221" />
+      <JFXTextField fx:id="max" labelFloat="true" layoutX="260.0" layoutY="398.0" promptText="Max" text="120" />
+   </children>
+</AnchorPane>
