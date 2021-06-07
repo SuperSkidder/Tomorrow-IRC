@@ -4,7 +4,9 @@ import com.jfoenix.controls.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import superskidder.TimerUtil;
+import superskidder.QQ.Core;
+import superskidder.QQ.QQTest;
+import superskidder.utils.TimerUtil;
 import superskidder.User;
 import superskidder.utils.IRCUtils;
 import superskidder.utils.packets.IRCPacket;
@@ -16,7 +18,6 @@ import superskidder.utils.packets.serverside.ServerChatPacket;
 import superskidder.utils.packets.serverside.ServerHeartNeededPacket;
 import superskidder.utils.packets.serverside.ServerStopPacket;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +39,8 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         addLog("准备就绪");
-        Runtime.getRuntime().addShutdownHook(new Thread("Server Shutdown Thread")
-        {
-            public void run()
-            {
+        Runtime.getRuntime().addShutdownHook(new Thread("Server Shutdown Thread") {
+            public void run() {
                 closeServer();
             }
         });
@@ -50,19 +49,19 @@ public class Controller implements Initializable {
 
     @FXML
     private void launchirc() {
-        if(!isStart){
+        if (!isStart) {
             launch.setText("Stop IRC Server");
-        }else{
+        } else {
             launch.setText("Launch IRC");
         }
-        if(!isStart) {
+        if (!isStart) {
             try {
                 serverStart(Integer.valueOf(max.getText()), Integer.valueOf(port.getText()));
             } catch (BindException e) {
                 showMessage("警告", "端口号已经被占用，请换一个");
 //            e.printStackTrace();
             }
-        }else{
+        } else {
             closeServer();
         }
 
@@ -82,10 +81,10 @@ public class Controller implements Initializable {
 
     private ServerSocket serverSocket;
     private ServerThread serverThread;
-    private ArrayList<ClientThread> clients;
+    private static ArrayList<ClientThread> clients;
     public TimerUtil timer = new TimerUtil();
 
-    public String prefix = "\247d[IRC]\2477";
+    public static String prefix = "\247d[IRC]\2477";
 
     private boolean isStart = false;
     private Map<ClientThread, Integer> needHeartsUsers = new HashMap<>();
@@ -114,23 +113,22 @@ public class Controller implements Initializable {
     }
 
 
-
     //关闭服务器
     public void closeServer() {
         try {
             if (serverThread != null)
                 serverThread.stop();//停止服务器线程
+            if (QQTest.clientTest != null)
+                QQTest.clientTest.stop();
 
             for (int i = clients.size() - 1; i >= 0; i--) {
                 //给所有在线用户发送关闭命令
-                clients.get(i).getWriter().println(IRCUtils.toJson(new ServerStopPacket(System.currentTimeMillis(), "Server closed because [" + JOptionPane.showInputDialog("Why do you close server?") + "]")));
+
+                clients.get(i).getWriter().println(IRCUtils.toJson(new ServerStopPacket(System.currentTimeMillis(), "Server closed because [ SOME REASON ]")));
                 clients.get(i).getWriter().flush();
                 //释放资源
-                clients.get(i).stop();//停止此条为客户端服务的线程
-                clients.get(i).reader.close();
-                clients.get(i).writer.close();
-                clients.get(i).socket.close();
                 clients.remove(i);
+                System.gc();
             }
             if (serverSocket != null) {
                 serverSocket.close();//关闭服务器端连接
@@ -140,14 +138,15 @@ public class Controller implements Initializable {
             e.printStackTrace();
             isStart = true;
         }
+        System.gc();
         addLog("Server closed");
         log.clear();
     }
 
     //群发服务器消息
-    public void sendServerMessage(String message) {
+    public static void sendServerMessage(String message) {
         for (int i = clients.size() - 1; i >= 0; i--) {
-            clients.get(i).getWriter().println(IRCUtils.toJson(new ServerChatPacket(System.currentTimeMillis(), "\2474[Server]" + message)));
+            clients.get(i).getWriter().println(IRCUtils.toJson(new ServerChatPacket(System.currentTimeMillis(), message)));
             clients.get(i).getWriter().flush();
         }
     }
@@ -267,8 +266,8 @@ public class Controller implements Initializable {
                 } else if (packet.type.equals(IRCType.CONNECT)) {
                     ClientConnectPacket c = (ClientConnectPacket) IRCUtils.toPacket(message, ClientConnectPacket.class);
                     user = new User(c.username, "none", "w", c.gameID);
-                    writer.println(new ServerChatPacket(System.currentTimeMillis(), prefix + user.getAuthName() + "\247a joined successfully!"));
-                    writer.flush();
+                    dispatcherMessage(new ClientChatPacket(System.currentTimeMillis(),prefix + "User:" + user.getAuthName() + "joined IRC Server!"));
+                    Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
                 }
 
                 //反馈连接成功信息
@@ -315,7 +314,8 @@ public class Controller implements Initializable {
                     if (packet.type.equals(IRCType.CHAT)) {
                         ClientChatPacket c = (ClientChatPacket) IRCUtils.toPacket(message, ClientChatPacket.class);
                         dispatcherMessage(c);
-                        addLog("[" + this.user.getAuthName() + "] " + c.content);
+                        addLog("[" + c.content);
+                        Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
                     } else if (packet.type.equals(IRCType.HEART)) {
                         ClientHeartPacket c = (ClientHeartPacket) IRCUtils.toPacket(message, ClientHeartPacket.class);
                         needHeartsUsers.remove(this);

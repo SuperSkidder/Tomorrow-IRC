@@ -1,4 +1,4 @@
-package superskidder;
+package superskidder.utils;
 
 public class TimerUtil {
     private long lastMS;
