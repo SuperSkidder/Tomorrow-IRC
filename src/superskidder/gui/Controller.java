@@ -145,6 +145,8 @@ public class Controller implements Initializable {
 
     //群发服务器消息
     public static void sendServerMessage(String message) {
+        if(clients.size() <= 0)
+            return;
         for (int i = clients.size() - 1; i >= 0; i--) {
             clients.get(i).getWriter().println(IRCUtils.toJson(new ServerChatPacket(System.currentTimeMillis(), message)));
             clients.get(i).getWriter().flush();
@@ -266,8 +268,10 @@ public class Controller implements Initializable {
                 } else if (packet.type.equals(IRCType.CONNECT)) {
                     ClientConnectPacket c = (ClientConnectPacket) IRCUtils.toPacket(message, ClientConnectPacket.class);
                     user = new User(c.username, "none", "w", c.gameID);
-                    dispatcherMessage(new ClientChatPacket(System.currentTimeMillis(),prefix + "User:" + user.getAuthName() + "joined IRC Server!"));
+                    dispatcherMessage(new ClientChatPacket(System.currentTimeMillis(), prefix + "User:" + user.getAuthName() + "joined IRC Server!"));
                     Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
+                    Core.sendGroupMessages(1186475932, 1131855207, "[IRC]" + c.content, 0);
+
                 }
 
                 //反馈连接成功信息
@@ -314,8 +318,9 @@ public class Controller implements Initializable {
                     if (packet.type.equals(IRCType.CHAT)) {
                         ClientChatPacket c = (ClientChatPacket) IRCUtils.toPacket(message, ClientChatPacket.class);
                         dispatcherMessage(c);
-                        addLog("[" + c.content);
+                        addLog(c.content);
                         Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
+                        Core.sendGroupMessages(1186475932, 1131855207, "[IRC]" + c.content, 0);
                     } else if (packet.type.equals(IRCType.HEART)) {
                         ClientHeartPacket c = (ClientHeartPacket) IRCUtils.toPacket(message, ClientHeartPacket.class);
                         needHeartsUsers.remove(this);

@@ -64,29 +64,26 @@ public class QQTest {
 		/*if(fromGroup != 742830386){ //测试用 只接收这个群的消息
 			return;
 		}*/
-//		if(msg.contains("改名片")){//默认改自己的 如  改名片404
+		if(msg.contains("改名片")){//默认改自己的 如  改名片404
 //			String cardName = msg.substring(msg.indexOf("改名片") + 3);//取出右边的名片
 //			Core.setGroupCardName(selfQQ, fromGroup, fromQQ, cardName);
-//		}else if(msg.contains("踢")){//右边需要加上要踢的QQ 如 踢123456
+		}else if(msg.contains("踢")){//右边需要加上要踢的QQ 如 踢123456
 //			String otherQQ = msg.substring(msg.indexOf("踢") + 1);//取出右边要踢的QQ
 //			Core.delGroupMember(selfQQ, fromGroup, Integer.valueOf(otherQQ), 0);
-//		}else if(msg.contains("禁言")){//右边需要加上要禁言的QQ 如 禁言123456
+		}else if(msg.contains("禁言")){//右边需要加上要禁言的QQ 如 禁言123456
 //			String otherQQ = msg.substring(msg.indexOf("禁言") + 2);//取出右边要禁言的QQ
 //			Core.prohibitSpeak(selfQQ, fromGroup, Integer.valueOf(otherQQ), 60);
-//		}else if(msg.equals("图文")){
+		}else if(msg.equals("图文")){
 //			byte[] bts = StringUtils.readFile("D:\\1.png");//读取文件
 //			String base64Str = Base64.getEncoder().encodeToString(bts);//字节数组转Base64
 //			base64Str = "[pic:"+ base64Str + "]";//组装图片的格式
 //			Core.sendGroupMessagesPicText(selfQQ, fromGroup, base64Str + "111" + base64Str,0);
-//		}else{
-//
-//		}
+		}else{
+            if (fromGroup == 171271622 || fromGroup == 1131855207) {
+                Controller.sendServerMessage("\2473[QQ]" + fromQQCard + "\2477:" + msg);
+            }
 
-
-        if (fromGroup == 171271622) {
-            Controller.sendServerMessage("\2473[QQ]" + fromQQCard + "\2477:" + msg);
         }
-
 
     }
 

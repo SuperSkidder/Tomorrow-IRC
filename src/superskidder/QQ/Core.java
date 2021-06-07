@@ -137,8 +137,6 @@ public class Core {
 
 		System.out.println(gson.toJson(gm,GroupMessage.class));
 
-
-
 		QQTest.clientTest.sendMsg(gson.toJson(gm,GroupMessage.class));
 	}
 	/**
