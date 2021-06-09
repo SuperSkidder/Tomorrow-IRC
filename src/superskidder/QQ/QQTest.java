@@ -17,6 +17,8 @@ import superskidder.gui.Controller;
 public class QQTest {
 
     public static ChatClient clientTest;
+    public static long selfQ;
+
 
     /**
      * 收到好友消息
@@ -27,6 +29,7 @@ public class QQTest {
         System.out.println("[收到好友消息]" + data);
         JSONObject json = JSONObject.parseObject(data);
         long selfQQ = json.getInteger("selfQQ");//框架QQ
+        selfQ = json.getInteger("selfQQ");//框架QQ
         long fromQQ = json.getInteger("fromQQ");//对方QQ
         long random = json.getInteger("random");//撤回消息用
         long req = json.getInteger("req");//撤回消息用
@@ -56,6 +59,7 @@ public class QQTest {
         System.out.println("[收到群聊消息]" + data);
         JSONObject json = JSONObject.parseObject(data);
         long selfQQ = json.getInteger("selfQQ");//框架QQ
+        selfQ = json.getInteger("selfQQ");//框架QQ
         long fromGroup = json.getInteger("fromGroup");//群号
         long fromQQ = json.getInteger("fromQQ");//对方QQ
         String fromQQCard = json.getString("fromQQCardName");
@@ -91,6 +95,7 @@ public class QQTest {
         System.out.println("[收到事件消息]" + data);
         JSONObject json = JSONObject.parseObject(data);
         long selfQQ = json.getInteger("selfQQ");//框架QQ
+        selfQ = json.getInteger("selfQQ");//框架QQ
         long fromGroup = json.getInteger("fromGroup");//群号
         int msgType = json.getInteger("msgType");//类型
         long triggerQQ = json.getInteger("triggerQQ");//对方QQ

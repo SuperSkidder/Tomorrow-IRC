@@ -269,8 +269,8 @@ public class Controller implements Initializable {
                     ClientConnectPacket c = (ClientConnectPacket) IRCUtils.toPacket(message, ClientConnectPacket.class);
                     user = new User(c.username, "none", "w", c.gameID);
                     dispatcherMessage(new ClientChatPacket(System.currentTimeMillis(), prefix + "User:" + user.getAuthName() + "joined IRC Server!"));
-                    Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
-                    Core.sendGroupMessages(1186475932, 1131855207, "[IRC]" + c.content, 0);
+                    Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
+                    Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
 
                 }
 
@@ -319,8 +319,8 @@ public class Controller implements Initializable {
                         ClientChatPacket c = (ClientChatPacket) IRCUtils.toPacket(message, ClientChatPacket.class);
                         dispatcherMessage(c);
                         addLog(c.content);
-                        Core.sendGroupMessages(1186475932, 171271622, "[IRC]" + c.content, 0);
-                        Core.sendGroupMessages(1186475932, 1131855207, "[IRC]" + c.content, 0);
+                        Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
+                        Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
                     } else if (packet.type.equals(IRCType.HEART)) {
                         ClientHeartPacket c = (ClientHeartPacket) IRCUtils.toPacket(message, ClientHeartPacket.class);
                         needHeartsUsers.remove(this);
