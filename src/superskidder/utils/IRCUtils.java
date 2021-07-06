@@ -14,8 +14,15 @@ public class IRCUtils {
         return j;
     }
 
+    public static String toJson(Object packet) {
+        String j = gson.toJson(packet);
+        return j;
+    }
+
     public static IRCPacket toPacket(String packet,Type ctype) {
         return gson.fromJson(packet, ctype);
     }
-
+    public static Object toObject(String packet,Type ctype) {
+        return gson.fromJson(packet, ctype);
+    }
 }

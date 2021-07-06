@@ -31,7 +31,7 @@
             <Font size="13.0" />
          </font>
       </Label>
-      <JFXTextArea fx:id="log" editable="false" labelFloat="true" layoutX="20.0" layoutY="70.0" prefHeight="295.0" prefWidth="425.0" promptText="Log:" wrapText="true">
+      <JFXTextArea fx:id="log" editable="false" labelFloat="true" layoutX="20.0" layoutY="70.0" prefHeight="260.0" prefWidth="425.0" promptText="Log:" wrapText="true">
          <font>
             <Font size="14.0" />
          </font>
@@ -39,5 +39,6 @@
       <JFXButton fx:id="launch" layoutX="32.0" layoutY="436.0" onAction="#launchirc" prefHeight="40.0" prefWidth="399.0" ripplerFill="#656565" style="-fx-background-color: #f1f2f6;" text="Launch IRC" />
       <JFXTextField fx:id="port" labelFloat="true" layoutX="53.0" layoutY="398.0" prefHeight="23.0" prefWidth="117.0" promptText="Port:" text="6666" />
       <JFXTextField fx:id="max" labelFloat="true" layoutX="260.0" layoutY="398.0" promptText="Max" text="120" />
+      <JFXTextField fx:id="users" labelFloat="true" layoutX="53.0" layoutY="352.0" prefHeight="23.0" prefWidth="355.0" promptText="DataPath" text="H:\程序\小栗子框架3.4.9单Q\main\data\plugin\Tomo Anti-Leak" />
    </children>
 </AnchorPane>

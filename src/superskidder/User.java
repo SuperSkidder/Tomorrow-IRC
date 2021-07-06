@@ -1,10 +1,12 @@
 package superskidder;
 
 public class User {
-	private String authName;
-	private String password;
-	private String GameID;
-	private String hwid;
+	public String authName;
+	public String password;
+	public String GameID;
+	public String hwid;
+	public String head;
+	public boolean connected;
 
 	public User(String authName, String password, String hwid, String GameID) {
 		this.authName = authName;
