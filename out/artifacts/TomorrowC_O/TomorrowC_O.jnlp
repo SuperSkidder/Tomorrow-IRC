@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="TomorrowC_O.jnlp">
+  <information>
+    <title>TomorrowC-O</title>
+    <vendor>Unknown</vendor>
+    <description>TomorrowC-O</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="TomorrowC_O.jar" size="26839" download="eager" />
+    <jar href="gson-2.2.4.jar" size="190432" download="eager" />
+    <jar href="jfoenix-8.0.10.jar" size="2710207" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="600" height="400" main-class="superskidder.gui.Main"  name="TomorrowC-O" />
+  <update check="background"/>
+</jnlp>

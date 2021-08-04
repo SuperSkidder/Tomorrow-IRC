@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="javafx" name="IRC">
-    <output-path>$USER_HOME$/Desktop/IRC</output-path>
+  <artifact type="javafx" name="TomorrowC-O">
+    <output-path>$PROJECT_DIR$/out/artifacts/TomorrowC_O</output-path>
     <properties id="javafx-properties">
       <options>
         <option name="appClass" value="superskidder.gui.Main" />
@@ -14,9 +14,8 @@
     <root id="root">
       <element id="archive" name="TomorrowC_O.jar">
         <element id="module-output" name="TomorrowC-O" />
-        <element id="extracted-dir" path="$USER_HOME$/Downloads/jfoenix-8.0.10.jar" path-in-jar="/" />
-        <element id="extracted-dir" path="$USER_HOME$/Downloads/fastjson-1.2.76.jar" path-in-jar="/" />
-        <element id="extracted-dir" path="$PROJECT_DIR$/../我的世界/1.8librarys/gson-2.2.4.jar" path-in-jar="/" />
+        <element id="file-copy" path="$PROJECT_DIR$/../我的世界/1.8librarys/gson-2.2.4.jar" />
+        <element id="file-copy" path="$PROJECT_DIR$/../jfoenix-8.0.10.jar" />
       </element>
     </root>
   </artifact>

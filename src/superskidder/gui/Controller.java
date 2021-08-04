@@ -4,8 +4,6 @@ import com.jfoenix.controls.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import superskidder.QQ.Core;
-import superskidder.QQ.QQTest;
 import superskidder.utils.TimerUtil;
 import superskidder.User;
 import superskidder.utils.IRCUtils;
@@ -35,7 +33,8 @@ public class Controller implements Initializable {
     private JFXTextField max;
     @FXML
     private JFXTextArea log;
-
+    @FXML
+    private JFXTextField users;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -88,7 +87,7 @@ public class Controller implements Initializable {
     public static String prefix = "\247d[IRC]\2477";
 
     private boolean isStart = false;
-    private Map<ClientThread, Integer> needHeartsUsers = new HashMap<>();
+    private ArrayList<ClientThread> needHeartsUsers = new ArrayList<>();
 
 
     //启动服务器
@@ -119,8 +118,6 @@ public class Controller implements Initializable {
         try {
             if (serverThread != null)
                 serverThread.stop();//停止服务器线程
-            if (QQTest.clientTest != null)
-                QQTest.clientTest.stop();
 
             for (int i = clients.size() - 1; i >= 0; i--) {
                 //给所有在线用户发送关闭命令
@@ -161,55 +158,48 @@ public class Controller implements Initializable {
 
         @Override
         public void run() {
-            while (isStart) {
-                if (timer.delay(1500L)) {
-                    Map<ClientThread, Integer> needRemove = new HashMap<>();
+            try {
 
-                    mainLooping:
-                    if (needHeartsUsers.isEmpty()) {
-                        for (ClientThread ct : clients) {
-                            ct.getWriter().println(IRCUtils.toJson(new ServerHeartNeededPacket(System.currentTimeMillis(), IRCUtils.toJson(ct.user))));
-                            ct.getWriter().flush();
-                            System.out.println("HeartNeeded:" + ct.user.authName);
-                            needHeartsUsers.put(ct, 0);
-                            lastSendTime = System.nanoTime() / 1000000L;
-                        }
-                    } else {
-
-                        needHeartsUsers.forEach((c, key) -> {
-                            if (needHeartsUsers.get(c) < 3) {
-                                c.getWriter().println(IRCUtils.toJson(new ServerHeartNeededPacket(System.currentTimeMillis(), IRCUtils.toJson(c.user))));
-                                c.getWriter().flush();
-                                System.out.println("HeartNeeded (R):" + c.user.authName);
-                                needHeartsUsers.put(c, needHeartsUsers.get(c) + 1);
-                            } else {
-                                needRemove.put(c, 0);
-                                addLog("客户端超时: " + c.getUser().getAuthName()+needHeartsUsers.size());
-                                clients.remove(c);
-                                c.stop();
-                                this.stop();
+                while (isStart) {
+                    if (timer.delay(1500L)) {
+                        mainLooping:
+                        if (needHeartsUsers.isEmpty()) {
+                            for (ClientThread ct : clients) {
+                                ct.getWriter().println(IRCUtils.toJson(new ServerHeartNeededPacket(System.currentTimeMillis(), IRCUtils.toJson(ct.user))));
+                                ct.getWriter().flush();
+                                System.out.println("HeartNeeded:" + ct.user.authName);
+                                needHeartsUsers.add(ct);
+                                lastSendTime = System.nanoTime() / 1000000L;
                             }
-                        });
-
-
-                        for(Iterator<ClientThread> iterator = needHeartsUsers.keySet().iterator(); iterator.hasNext(); ) {
-                            ClientThread key = iterator.next();
-                            if(needHeartsUsers.get(key) > 3) {
-                                needHeartsUsers.remove(key);
+                        } else {
+                            ArrayList<ClientThread> remove = new ArrayList();
+                            for (ClientThread c : needHeartsUsers) {
+                                if (c.resend < 3) {
+                                    c.getWriter().println(IRCUtils.toJson(new ServerHeartNeededPacket(System.currentTimeMillis(), IRCUtils.toJson(c.user))));
+                                    c.getWriter().flush();
+                                    System.out.println("HeartNeeded (R):" + c.user.authName);
+                                    c.resend++;
+                                } else {
+                                    addLog("客户端超时: " + c.getUser().getAuthName());
+                                    c.shutdown();
+                                    remove.add(c);
+                                }
+                            }
+                            for (ClientThread ct : remove) {
+                                needHeartsUsers.remove(ct);
                             }
                         }
-
-
+                        timer.reset();
 
                     }
 
-                    timer.reset();
+
                 }
 
-
+            } catch (Exception e1) {
+                System.out.println("Heart Packet报错！");
+                new HeartPacket().start();
             }
-
-
         }
     }
 
@@ -234,8 +224,7 @@ public class Controller implements Initializable {
                     Socket socket = serverSocket.accept();
 
                     ClientThread client = new ClientThread(socket);
-                    clients.add(client);
-                    client.start();//开启对此客户端服务的线程
+                    client.start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -247,6 +236,7 @@ public class Controller implements Initializable {
 
     //为一个客户端服务的线程
     class ClientThread extends Thread {
+        public int resend = 0;
         private Socket socket;
         private BufferedReader reader;
         private PrintWriter writer;
@@ -277,15 +267,30 @@ public class Controller implements Initializable {
                     needHeartsUsers.remove(this);
                 } else if (packet.type.equals(IRCType.CONNECT)) {
                     ClientConnectPacket c = (ClientConnectPacket) IRCUtils.toPacket(message, ClientConnectPacket.class);
-                    user = new User(c.username, "none", "w", c.gameID);
+                    user = new User(c.username, c.password, c.hwid, "");
                     //验证
 
+                    int flag = 0;
+                    for (String s : readFile(users.getText()).split(System.lineSeparator())) {
+                        if (s.equals("USERNAME=" + c.username) || s.equals("PWD=" + c.password) || s.equals("HWID=" + c.hwid)) {
+                            flag++;
+                        }
+                    }
+                    clients.add(this);
+
+                    if (flag == 3) {
+                        addLog(c.username + " " + c.password + " Login Successfully");
+                    } else {
+                        addLog(c.username + " " + c.password + " Login failed");
+                        shutdown();
+                        return;
+                    }
 
                     dispatcherMessage(new ServerChatPacket(System.currentTimeMillis(), prefix + user.getAuthName() + "\247a joined successfully!"));
                     addLog("[" + this.user.getAuthName() + "] joined successfully!");
                     user.connected = true;
-                    Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
-                    Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
+//                    Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
+//                    Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
 
                 }
 
@@ -298,8 +303,33 @@ public class Controller implements Initializable {
 //                }
             } catch (Exception e) {
                 e.printStackTrace();
+                addLog("心跳线程报错:" + e.getMessage());
+                new HeartPacket().start();
             }
         }
+
+        public String readFile(String fileName) {
+            StringBuilder result = new StringBuilder();
+
+            try {
+                File file = new File(fileName);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                FileInputStream fIn = new FileInputStream(file);
+                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fIn))) {
+                    String str;
+                    while ((str = bufferedReader.readLine()) != null) {
+                        result.append(str);
+                        result.append(System.lineSeparator());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return result.toString();
+        }
+
 
         private String get(String string) throws Exception {
             URL url = new URL(string);
@@ -334,11 +364,11 @@ public class Controller implements Initializable {
                         ClientChatPacket c = (ClientChatPacket) IRCUtils.toPacket(message, ClientChatPacket.class);
                         dispatcherMessage(c);
                         addLog(c.content);
-                        Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
-                        Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
+//                        Core.sendGroupMessages(QQTest.selfQ, 171271622, "[IRC]" + c.content, 0);
+//                        Core.sendGroupMessages(QQTest.selfQ, 1131855207, "[IRC]" + c.content, 0);
                     } else if (packet.type.equals(IRCType.HEART)) {
                         ClientHeartPacket c = (ClientHeartPacket) IRCUtils.toPacket(message, ClientHeartPacket.class);
-                        User u = (User) IRCUtils.toObject(c.content,User.class);
+                        User u = (User) IRCUtils.toObject(c.content, User.class);
                         this.user.GameID = u.getGameID();
                         this.user.head = u.head;
                         needHeartsUsers.remove(this);
@@ -356,6 +386,18 @@ public class Controller implements Initializable {
                 clients.get(i).getWriter().println(IRCUtils.toJson(message));
                 clients.get(i).getWriter().flush();
             }
+        }
+
+        public void shutdown() {
+            this.writer.println(IRCUtils.toJson(new ServerStopPacket(System.currentTimeMillis(), "Server closed because [ Heart Packet ]")));
+
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            clients.remove(this);
+            this.stop();
         }
     }
 
